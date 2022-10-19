@@ -1,0 +1,230 @@
+TASK1------------
+
+#DFS
+import collections
+graph = {
+  2 : {5:10,4:11},
+   5 :  {6:9,3:12},
+   4 : {7:13},
+  6 : {},
+  3 : {7:13},
+  7 : {}
+}
+def sorting(graph):
+    for x in graph:
+        graph[x]=sorted(graph[x].items(), key =lambda kv:kv[1])
+        graph[x]=collections.OrderedDict(graph[x])
+        
+visited=set()
+def dfs(visited,graph, node):
+    if node not in visited:
+        print(node)
+        visited.add(node)
+        for neighbour in graph[node]:
+            dfs(visited,graph, neighbour)
+#driver code-----------
+print("following is the depth first search: ")
+dfs(visited, graph, 2) 
+
+
+Task2--------------
+#BFS
+graph = {
+  'A' : {'B':5,'C':4},
+  'B' : {'D':6, 'E':3},
+  'C' : {'F':7},
+  'D' : {},
+  'E' : {'F':7},
+  'F' : {}
+}
+
+visited = []
+queue = []  
+def bfs(visited, graph, node, destination): 
+  visited.append(node)
+  queue.append(node)
+  while queue:          
+    m = queue.pop(0)
+    print (m, end = " ") 
+    if m==destination:
+        break
+    for neighbour in graph[m]:
+        if neighbour not in visited:
+            visited.append(neighbour)
+            queue.append(neighbour)
+
+# Driver Code
+print("Following is the Breadth-First Search")
+bfs(visited, graph, 'A','E')
+
+
+TASK3--------
+1):---
+#UCS
+from queue import PriorityQueue
+graph = {
+  'A' : {'B':5,'C':4},
+  'B' : {'D':6, 'E':3},
+  'C' : {'F':7},
+  'D' : {},
+  'E' : {'F':7},
+  'F' : {}
+}
+queue=PriorityQueue()
+cost=0
+visited = []
+
+def ucs(visited, graph, node, destination): 
+    
+    visited.append(node)
+    queue.put((0,node))
+    
+    while queue:         
+        c,m=queue.get()
+       
+        print (m,"has cost: ", c)
+        if m not in visited:
+            print(" ")
+        if m==destination:
+            return c
+        for neighbour in graph[m]:
+            if neighbour not in visited:
+                visited.append(graph[m][neighbour])
+                cost=c+ graph[m][neighbour]
+                queue.put((cost,neighbour))
+                
+# Driver Code
+print("Following is the Breadth-First Search")
+L=ucs(visited, graph, 'A','E')
+print("following is the cost of this function:  ")
+print(L)
+
+2):---
+#Uniform Cost Search
+from queue import PriorityQueue
+graph = {
+  'A' : [[10,'B'],[8,'C']],
+  'B' : [[5,'D'], [3,'F'],[2,'E']],
+  'C' : [[5,'F']],
+  'D' : [],
+  'E' : [[2,'F']],
+  'F' : []
+}
+visited = []
+mygoal='F' 
+
+def bfs(visited, graph, startnode,goal):  #function for dfs 
+    
+    expque=PriorityQueue()
+    path=[startnode]
+    visited = set() # Set to keep track of visited nodes of graph.
+    expque.put((0,startnode,startnode))
+    
+    while expque.qsize() > 0 :
+        
+        node=expque.get()
+        curcost=node[0]
+        curname=node[1]
+        curpath=node[2]
+        
+              
+        if curname not in visited:
+            visited.add(curname)
+           # print('name:', curname, '\t gn:', curcost)
+            
+            if curname==goal:
+                print ('---Goal Found---' )
+                print('Path Cost: ',curcost,'Path Track: ',curpath )
+                return
+            
+            suclist=graph[curname]
+            for sucnode in suclist:
+                if sucnode[1] not in visited:
+                    gn=sucnode[0]+curcost                                  
+                    st=''
+                    st=node[2]+' '+sucnode[1]
+                    expque.put((gn,sucnode[1],st))
+                    
+        
+# Driver Code
+print("Following is the Uniform Cost Search")
+bfs(visited, graph, 'A',mygoal)
+
+
+TASK4----------------------
+class Node:
+    def __init__(self,data,level,fval):
+        self.data = data
+        self.level = level
+        self.fval = fval
+        print(self.data)
+    def generate_child(self):
+        x,y = self.find(self.data,'_')
+        val_list = [[x,y-1],[x,y+1],[x-1,y],[x+1,y]]
+        children = []
+        for i in val_list:
+            child = self.shuffle(self.data,x,y,i[0],i[1])
+            if child is not None:
+                child_node = Node(child,self.level+1,0)
+                children.append(child_node)
+        return children
+    def shuffle(self,puz,x1,y1,x2,y2):
+        if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
+            temp_puz = []
+            temp_puz = self.copy(puz)
+            temp = temp_puz[x2][y2]
+            temp_puz[x2][y2] = temp_puz[x1][y1]
+            temp_puz[x1][y1] = temp
+            return temp_puz
+        else:
+            return None
+            
+
+    def copy(self,root):
+        temp = []
+        for i in root:
+            t = []
+            for j in i:
+                t.append(j)
+            temp.append(t)
+        return temp    
+            
+    def find(self,puz,x):
+        for i in range(0,len(self.data)):
+            for j in range(0,len(self.data)):
+                if puz[i][j] == x:
+                    return i,j
+
+
+class Puzzle:
+    def __init__(self,size):
+        self.n = size
+        self.open = []
+        self.closed = []
+
+    def accept(self):
+        puz = []
+        for i in range(0,self.n):
+            temp = input().split(" ")
+            puz.append(temp)
+        return puz
+
+    def f(self,start,goal):
+        
+        return self.h(start.data,goal)+start.level
+
+    def h(self,start,goal):
+        temp = 0
+        for i in range(0,self.n):
+            for j in range(0,self.n):
+                if start[i][j] != goal[i][j] and start[i][j] != '_':
+                    temp += 1
+        return temp
+        
+
+    def process(self):
+        """ Accept Start and Goal Puzzle state"""
+        print("Enter the start state matrix \n")
+        start = self.accept()
+        print("Enter the goal state matrix \n")        
+        goal = self.accept()
